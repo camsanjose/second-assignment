@@ -1,0 +1,217 @@
+<html>
+
+<head>
+<style type="text/css">
+.inline {
+  background-color: #f7f7f7;
+  border:solid 1px #B0B0B0;
+}
+.error {
+	font-weight: bold;
+	color: #FF0000;
+}
+.warning {
+	font-weight: bold;
+}
+.message {
+	font-style: italic;
+}
+.source, .output, .warning, .error, .message {
+	padding: 0 1em;
+  border:solid 1px #F7F7F7;
+}
+.source {
+  background-color: #f5f5f5;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}
+.center {
+  text-align: center;
+}
+.hl.num {
+  color: #AF0F91;
+}
+.hl.str {
+  color: #317ECC;
+}
+.hl.com {
+  color: #AD95AF;
+  font-style: italic;
+}
+.hl.opt {
+  color: #000000;
+}
+.hl.std {
+  color: #585858;
+}
+.hl.kwa {
+  color: #295F94;
+  font-weight: bold;
+}
+.hl.kwb {
+  color: #B05A65;
+}
+.hl.kwc {
+  color: #55aa55;
+}
+.hl.kwd {
+  color: #BC5A65;
+  font-weight: bold;
+}
+</style>
+<style> .special {color: darkblue} </style>
+<title>Box-Plot with jitter</title>
+<script src="https://d3js.org/d3.v4.js"></script>
+<style>
+table {
+  width: 200px;
+}
+
+td {
+ width: 50%;
+ border: 1px solid blue;
+ text-align: center;
+}
+
+td.name {
+  background-color: darkgreen;
+}
+
+td.value {
+  background-color: lightgreen;
+}
+</style>
+</head>
+
+<body>
+
+<h1 class= "special">Box-Plot with jitter</h1>
+
+<div id="table"> 
+<table> 
+<col name ="Name" class= "name">
+<col name= "X" class="weight selected">
+<tr></tr>
+<thead>
+  <tr>
+    <th> Name </th>
+    <th> X </th>
+
+  </tr>
+</thead>
+</table>
+</div>
+
+<div id="my_dataviz"></div>
+
+<svg height="200" width="200">
+</svg>
+
+
+<script>
+d3.csv("data1.csv", function(data){
+  my_csv_data = data;
+
+  d3.select("#table")
+  .append("table")
+  .selectAll("tr")
+  .data(data)
+  .enter()
+  .append("tr")
+  .html(d =>  "<td class='name'>" + d.name + "</td>" + "<td class='value'>"+ d.weight +"</td>");
+  
+  
+  // var data = [12,19,11,13,12,22,13,4,15,16,18,19,20,12,11,9];
+  var dd = data.map(d => + d.weight);
+  // var dd = [9,20,30,8,12];
+  MakeBP(dd);
+   
+})
+
+function MakeBP(data) {
+// set the dimensions and margins of the graph
+var margin = {top: 10, right: 30, bottom: 30, left: 40},
+  width = 400 - margin.left - margin.right,
+  height = 400 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+var svg = d3.select("#my_dataviz")
+.append("svg")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+.append("g")
+  .attr("transform",
+        "translate(" + margin.left + "," + margin.top + ")");
+
+// Compute summary statistics used for the box:
+var data_sorted = data.sort(d3.ascending)
+var q1 = d3.quantile(data_sorted, .25)
+var median = d3.quantile(data_sorted, .5)
+var q3 = d3.quantile(data_sorted, .75)
+var interQuantileRange = q3 - q1
+var min = q1 - 1.5 * interQuantileRange
+var max = q1 + 1.5 * interQuantileRange
+
+// Show the Y scale
+var y = d3.scaleLinear()
+  .domain([min * 0.9, max * 1.1])
+  .range([height, 0]);
+svg.call(d3.axisLeft(y))
+
+// a few features for the box
+var center = 200
+var width = 100
+
+// Show the main vertical line
+svg
+.append("line")
+  .attr("x1", center)
+  .attr("x2", center)
+  .attr("y1", y(min) )
+  .attr("y2", y(max) )
+  .attr("stroke", "black")
+
+// Show the box
+svg
+.append("rect")
+  .attr("x", center - width/2)
+  .attr("y", y(q3) )
+  .attr("height", (y(q1)-y(q3)) )
+  .attr("width", width )
+  .attr("stroke", "black")
+  .style("fill", "lightgreen")
+
+// show median, min and max horizontal lines
+svg
+.selectAll("toto")
+.data([min, median, max])
+.enter()
+.append("line")
+  .attr("x1", center-width/2)
+  .attr("x2", center+width/2)
+  .attr("y1", function(d){ return(y(d))} )
+  .attr("y2", function(d){ return(y(d))} )
+  .attr("stroke", "black")
+  
+// Create the data horizontal jitter
+var jitter= 130;
+
+svg
+.selectAll("indPoints")
+.data(data)
+.enter()
+.append("circle")
+  .attr('cx', d=> 130 + Math.random()*jitter)
+  .attr('cy', d=> y(d))
+  .attr('r', 4)
+  .attr('fill', "blue")  
+  
+}
+</script>
+
+</body>
+</html>

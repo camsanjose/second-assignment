@@ -1,0 +1,110 @@
+<html>
+
+<head>
+<title>Selector</title>
+<script src="https://d3js.org/d3.v4.js"></script>
+<style>
+td {
+  background-color: lightblue;
+  border: 1px black;
+  text-align: center;
+}
+th {
+  background-color: pink;
+}
+</style>
+</head>
+
+<body>
+<h1>Selector of datasets</h1>
+<p id="demo">Plot automatically a data table by selecting the data from the files data1.csv, data2.csv and data3.csv (Use an html select tag and the onchange event).</p> 
+
+
+<select id="selector" onchange="tablechange()">
+<option value= "data1.csv" selected>DATA1</option>
+<option value= "data2.csv">DATA2</option>
+<option value= "data3.csv">DATA3</option>
+</select>
+
+<div id="table"></div>
+
+<script>
+//var my_data; 
+
+//d3.csv("data2.csv", data =>{
+//my_data = data[0];
+//d3.select("#d3table")
+//  .append("table")
+//  .selectAll("tr")
+//  .data(data)
+//  .enter()
+//  .append("tr")
+//  .selectAll('td')
+// .data(d=> Object.entries(d))
+//  .enter()
+//  .append('td')
+//  .text(d=> d[1])
+//  .attr('name', d=>d[0])
+//  .on('click',d=> selector(d[0]));
+  
+//  .html(d =>  "<td class='name'>" + d.name+ "</td>" + "<td class='value'>"+ d.x +"</td>" + "<td class='value'>"+ d.y +"</td>" );
+
+
+
+// This is the change in the table
+function tablechange(){
+data1 ="data1.csv"
+var select_data=document.getElementById('selector').value;
+if (select_data != "data1.csv"){
+  data1=select_data;
+}else{
+   data1 ="data1.csv";
+  }
+
+//Imput of data
+d3.csv(data1,data=> {
+//  console.log(data[0]);
+d3.select("#table").html("")
+  .append("thead")
+  .append("tr")
+  .selectAll("th")
+  .data(Object.keys(data[0]))
+  .enter()
+  .append('th')
+  .text(d=> d) 
+  .attr('name',d=>d);
+
+//values and entries
+d3.select("#table")
+  .append('tbody')
+  .selectAll("tr")
+  .data(data)
+  .enter()
+  .append('tr')
+  .selectAll('td')
+  .data(d=> Object.values(d))
+  .data(d=> Object.entries(d))
+  .enter()
+  .append('td')
+  .text(d=>d[1])
+  .attr('name',d=> d[0])
+  .on('click',d=>selector(d[0]));
+
+})
+
+//Selector of the data 
+function selector(value){
+d3.selectAll(".selected")
+  .classed("selected",false);  
+d3.selectAll("[name='"+ value +"']")
+  .classed("selected",true);
+}
+
+}
+//Here you call de function so as to call the table first
+tablechange()
+
+</script>
+
+</body>
+</html>
