@@ -1,0 +1,46 @@
+<html>
+
+<head>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body>
+<title>Plotly Exercise: Error-Bar Plot</title>
+<style> .special {color: blue} </style>
+
+<h1 class= "special"> Error Bar Plot </h1>
+<div id= "myerror"></div>
+<script>
+
+// This function is to make the plot with the data__________________________
+
+Plotly.d3.csv("datacam.csv", data =>{
+  let fdata={}; 
+  const size = 100;
+  fdata.varx = data.slice(0, size).map(d => +d.varx);
+  fdata.vary = data.slice(0, size).map(d => +d.vary);
+  fdata.minimum = data.slice(0, size).map(d => +d.minimum);
+  fdata.maximum = data.slice(0, size).map(d => +d.maximum);
+  console.log(fdata)
+  
+  var data = [
+  {
+  x: fdata.varx,
+  y: fdata.vary,
+  error_y: {
+		type: 'data',
+		symmetric: false,
+		array: fdata.maximum,
+		arrayminus: fdata.minimum
+	  },
+	  type: 'scatter'
+  }
+  ];
+  
+Plotly.newPlot("myerror", data)  
+}) 
+
+
+</script>
+</body>
+</html>
